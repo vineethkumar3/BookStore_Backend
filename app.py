@@ -5,12 +5,16 @@ from flask import request, jsonify
 import jwt
 import datetime
 from flask import current_app
-import json
+import logging
 from Database_Connection import Database
 from dotenv import load_dotenv
 from datetime import timedelta
 load_dotenv()  # ✅ load .env into environment
 
+
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:5173"],supports_credentials=True)  # ✅ enable credentials
@@ -51,7 +55,7 @@ def jwt_required(f):
 
 @app.route("/login", methods=["POST"])
 def login():
-    print("Login function was triggered")
+    logger.info("Login function was triggered")
     data = request.get_json()
     username = data.get("username")
     password = data.get("password")
@@ -60,6 +64,7 @@ def login():
     user_data = connect_obj.get_user_by_name(username)
 
     if user_data[3] == str(password):
+        logger.info(user_data[3] + str(password))
         token=generate_token(username)
         return jsonify({"success": True, "message": "Login successful", "token": token})
     else:
@@ -67,10 +72,13 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    logger.info("Register was called")
+
     if request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
-        password = request.form['password']
+        data=request.get_json()
+        name = data.get('name')
+        email = data.get('email')
+        password = data.get('password')
         connect_obj=Database()
         print(name)
         connect_obj.insert_user(name,email,password)
@@ -124,4 +132,4 @@ def generate_token(user_email):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=True)
