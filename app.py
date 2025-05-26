@@ -25,6 +25,9 @@ def verify_token(token):
         return None
     except jwt.InvalidTokenError:
         return None
+@app.route('/')
+def home():
+    return "✅ Flask app is running on Render!"
 
 def jwt_required(f):
     @wraps(f)
