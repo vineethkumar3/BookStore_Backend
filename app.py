@@ -13,7 +13,7 @@ load_dotenv()  # ✅ load .env into environment
 
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True)  # ✅ enable credentials
+CORS(app, supports_credentials=True,origins=[https://bookstore-frontend-dgj.pages.dev])  # ✅ enable credentials
 app.secret_key = 'your-secret-key'
 
 
