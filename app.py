@@ -51,6 +51,7 @@ def jwt_required(f):
 
 @app.route("/login", methods=["POST"])
 def login():
+    print("Login function was triggered")
     data = request.get_json()
     username = data.get("username")
     password = data.get("password")
