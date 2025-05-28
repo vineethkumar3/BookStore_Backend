@@ -29,5 +29,9 @@ jobs:
       - name: ✅ Run Tests
         run: echo "🧪 Add your test command here"
 
-      - name: 🚀 Trigger Deploy on Render
-        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      - name: 🚀 Trigger Deploy to Render
+        if: success()
+        run: |
+          curl -X POST $RENDER_DEPLOY_HOOK_URL
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
