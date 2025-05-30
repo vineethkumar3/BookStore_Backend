@@ -1,16 +1,16 @@
 
 import psycopg2
 import os
+from dotenv import load_dotenv
 class Database:
 
     @staticmethod
     def connection():
         # Connection details
-        host = "dpg-d0lo76d6ubrc73c99m40-a.oregon-postgres.render.com"
-        database = "bookstoredata"
-        user = "vineeth"
-        password =  "MR327oC1FEoMX1Njsnfuwzcf2YBNRo1A"
-        print(password)
+        host = os.getenv("RENDER_DATABASE_HOST")
+        database = os.getenv("RENDER_DATABASE_NAME")
+        user = os.getenv("RENDER_DATABASE_USER")
+        password =  os.getenv("RENDER_DATABASE_PASSWORD")
         port = 5432
 
         try:

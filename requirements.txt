@@ -7,4 +7,5 @@ flask_cors
 python-dotenv~=1.1.0
 psycopg2-binary~=2.9.9
 PyJWT>=2.0.0
+dotenv
 
