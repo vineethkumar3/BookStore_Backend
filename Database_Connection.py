@@ -3,7 +3,7 @@ import psycopg2
 import os
 from dotenv import load_dotenv
 class Database:
-
+    load_dotenv()
     @staticmethod
     def connection():
         # Connection details
@@ -133,4 +133,96 @@ class Database:
         finally:
             cursor.close()
             conn.close()
+
+    def create_otp_table_if_not_exists(self):
+        cursor, conn = self.connection()
+        if not cursor or not conn:
+            print("⚠️ Connection failed. Cannot create OTP table.")
+            return
+
+        try:
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS bookstoreotp (
+                    id SERIAL PRIMARY KEY,
+                    email VARCHAR(255) NOT NULL,
+                    otp VARCHAR(6) NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            ''')
+            conn.commit()
+            print("✅ OTP table checked/created.")
+        except Exception as e:
+            print("❌ OTP table creation error:", e)
+        finally:
+            cursor.close()
+            conn.close()
+
+    def save_otp(self, email, otp):
+        self.create_otp_table_if_not_exists()
+        cursor, conn = self.connection()
+        if not cursor or not conn:
+            print("⚠️ Connection failed. Cannot save OTP.")
+            return
+
+        try:
+            cursor.execute('''
+                INSERT INTO bookstoreotp (email, otp, created_at)
+                VALUES (%s, %s, NOW());
+            ''', (email, otp))
+            conn.commit()
+            print("✅ OTP saved.")
+        except Exception as e:
+            print("❌ Save OTP error:", e)
+        finally:
+            cursor.close()
+            conn.close()
+
+    def verify_otp(self, email, otp):
+        cursor, conn = self.connection()
+        if not cursor or not conn:
+            return False
+
+        try:
+            cursor.execute('''
+                SELECT created_at FROM bookstoreotp
+                WHERE email = %s AND otp = %s
+                ORDER BY created_at DESC
+                LIMIT 1;
+            ''', (email, otp))
+            result = cursor.fetchone()
+
+            if result:
+                created_at = result[0]
+                from datetime import datetime, timedelta
+                if datetime.now() - created_at < timedelta(minutes=15):
+                    return True
+            return False
+        except Exception as e:
+            print("❌ OTP verification error:", e)
+            return False
+        finally:
+            cursor.close()
+            conn.close()
+
+    def cleanup_expired_otps(self):
+        self.create_otp_table_if_not_exists()
+        cursor, conn = self.connection()
+        if not cursor or not conn:
+            return
+
+        try:
+            cursor.execute('''
+                DELETE FROM bookstoreotp
+                WHERE created_at < NOW() - INTERVAL '15 minutes';
+            ''')
+            conn.commit()
+            print("🧹 Expired OTPs cleaned.")
+        except Exception as e:
+            print("❌ Cleanup OTPs error:", e)
+        finally:
+            cursor.close()
+            conn.close()
+
+
+
 

@@ -11,13 +11,13 @@ from dotenv import load_dotenv
 from datetime import timedelta
 load_dotenv()  # ✅ load .env into environment
 
-
+import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app, origins=["https://bookstore-frontend-dgj.pages.dev"],supports_credentials=True)  # ✅ enable credentials
+CORS(app, origins=[os.getenv("LOCAL_PAGES")],supports_credentials=True)  # ✅ enable credentials
 app.secret_key = 'your-secret-key'
 
 
